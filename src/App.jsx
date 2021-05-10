@@ -8,6 +8,8 @@ import Register from "./Register";
 import Dashboard from "./Dashboard";
 import RecipeDetail from "./RecipeDetail";
 import UserPage from "./UserPage";
+import RecipeCreate from "./CreateRecipe";
+import RecipeForm from "./RecipeForm";
 
 import NeighborhoodRecipeApi from "./api";
 
@@ -21,7 +23,6 @@ function App() {
   const [user, setUser] = useState(JSON.parse(localStorage.getItem("user"))||{});
 
   useEffect(()=>{
-    debugger;
     localStorage.setItem("token",token)
     if (token !== "") {
       const newNeighborhoodRecipeObj = NeighborhoodRecipeObj;
@@ -43,15 +44,15 @@ function App() {
   const connectWithUser = NeighborhoodRecipeObj.connectWithUser.bind(NeighborhoodRecipeObj);
   const removeConnectWithUser = NeighborhoodRecipeObj.removeConnectWithUser.bind(NeighborhoodRecipeObj);
   const getAllRecipes = NeighborhoodRecipeObj.getAllRecipes.bind(NeighborhoodRecipeObj);
-  const viewRecipes = NeighborhoodRecipeObj.viewRecipes.bind(NeighborhoodRecipeObj);
-  const getRecipes = NeighborhoodRecipeObj.getRecipe.bind(NeighborhoodRecipeObj);
+  const getRecipes = NeighborhoodRecipeObj.getRecipes.bind(NeighborhoodRecipeObj);
+  const getRecipe = NeighborhoodRecipeObj.getRecipe.bind(NeighborhoodRecipeObj);
   const researchRecipe = NeighborhoodRecipeObj.researchRecipe.bind(NeighborhoodRecipeObj);
+  const lookupAutoCompletes = NeighborhoodRecipeObj.lookupAutoCompletes.bind(NeighborhoodRecipeObj);
   const createRecipe = NeighborhoodRecipeObj.createRecipe.bind(NeighborhoodRecipeObj);
   const updateRecipe = NeighborhoodRecipeObj.updateRecipe.bind(NeighborhoodRecipeObj);
   const deleteRecipe = NeighborhoodRecipeObj.deleteRecipe.bind(NeighborhoodRecipeObj);
 
   const loadToken = async (type,obj)=>{
-    debugger;
     let items;
     try{
       if (type=="register") {
@@ -62,7 +63,7 @@ function App() {
       if (items.error) {
         return items.error
       }
-      debugger;
+      items.user.token = items.token;
       setToken(items.token);
       setUser(items.user);
       return true;
@@ -115,7 +116,7 @@ function App() {
     <NavBar links={navlinks()}/>
       <Switch>
         <Route exact path="/home">
-          <Dashboard />
+          <Dashboard getRecipes = {getRecipes} deleteRecipe = {deleteRecipe}/>
         </Route>
         <Route exact path="/login">
           <Login login={login} setToken={setToken}/>
@@ -126,8 +127,14 @@ function App() {
         <Route exact path="/register">
           <Register register={register}/>
         </Route>
+        <Route exact path="/recipe/edit/:id">
+          <RecipeForm lookupAutoCompletes={lookupAutoCompletes} completeForm={updateRecipe} getRecipe = {getRecipe} />
+        </Route>
         <Route exact path="/recipe/:id">
-          <RecipeDetail />
+          <RecipeDetail getRecipe = {getRecipe}/>
+        </Route>
+        <Route exact path="/create">
+          <RecipeForm lookupAutoCompletes={lookupAutoCompletes} completeForm={createRecipe} getRecipe={null}/>
         </Route>
         <Route exact path="/profile">
           <UserPage refreshUser={refreshUser}/>

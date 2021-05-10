@@ -12,16 +12,20 @@ const BASE_URL = process.env.REACT_APP_BASE_URL || "http://localhost:3001";
 
 class NeighborhoodRecipeApi {
     // the token for interactive with the API will be stored here.
-    static token = "";
+    //static token = "";
 
-    async request(endpoint, data = {}, method = "get") {
+    constructor() {
+        this.token = "";
+    }
+
+    async request(endpoint, data = {}, method = "get", tokenInput = null) {
         console.debug("API Call:", endpoint, data, method);
 
         const url = `${BASE_URL}/${endpoint}`;
-        const headers = { Authorization: `Bearer ${NeighborhoodRecipeApi.token}` };
+        if (tokenInput) this.token = tokenInput;
+        const headers = { Authorization: `Bearer ${this.token}` };
         const params = (method === "get") ?
             data : {};
-
         try {
             return (await axios({ url, method, data, params, headers })).data;
         } catch (err) {
@@ -44,7 +48,6 @@ class NeighborhoodRecipeApi {
      */
     async postNewRegistration(newUser) {
         try {
-            debugger;
             let res = await this.request(`auth/register`, newUser, "post");
             return { token: res.token, user: res.user };
         } catch (e) {
@@ -59,7 +62,6 @@ class NeighborhoodRecipeApi {
      */
     async postNewLogin(login) {
         try {
-            debugger;
             let res = await this.request(`auth/token`, login, "post");
             return { token: res.token, user: res.user };
         } catch (e) {
@@ -125,25 +127,25 @@ class NeighborhoodRecipeApi {
             let res = await this.request(`recipes/adminall`);
             return res.recipes;
         } catch (e) {
-            return { error: e }
+            return { error: e };
         }
     }
 
-    async viewRecipes() {
+    async getRecipes() {
         try {
             let res = await this.request(`recipes/view`);
             return res.recipes;
         } catch (e) {
-            return { error: e }
+            return { error: e };
         }
     }
 
-    async getRecipe(uuid) {
+    async getRecipe(uuid, token) {
         try {
-            let res = await this.request(`recipes/${uuid}`);
+            let res = await this.request(`recipes/${uuid}`, {}, "get", token);
             return res.recipe;
         } catch (e) {
-            return { error: e }
+            return { error: e };
         }
     }
 
@@ -153,7 +155,7 @@ class NeighborhoodRecipeApi {
             if (res.message) return res.message;
             return res;
         } catch (e) {
-            return { error: e }
+            return { error: e };
         }
     }
 
@@ -162,7 +164,7 @@ class NeighborhoodRecipeApi {
             let res = await this.request(`recipes`, data, 'post');
             return res.validMessage;
         } catch (e) {
-            return { error: e }
+            return { error: e };
         }
     }
 
@@ -171,7 +173,7 @@ class NeighborhoodRecipeApi {
             let res = await this.request(`recipes`, data, 'patch');
             return res.validMessage;
         } catch (e) {
-            return { error: e }
+            return { error: e };
         }
     }
 
@@ -180,10 +182,21 @@ class NeighborhoodRecipeApi {
             let res = await this.request(`recipes/${uuid}`, {}, 'delete');
             return res.message;
         } catch (e) {
-            return { error: e }
+            return { error: e };
         }
     }
 
+    /////////////////////
+    //Ingredient functions
+    /////////////////////
+    async lookupAutoCompletes(lookup) {
+        try {
+            let res = await this.request(`ingredients?lookup=${lookup}`);
+            return res.ingredients;
+        } catch (e) {
+            return { error: e };
+        }
+    }
 }
 
 // for now, put token ("testuser" / "password" on class)
