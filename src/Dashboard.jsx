@@ -11,22 +11,33 @@ function Dashboard({getRecipes, getRecipe, researchRecipe, createRecipe, deleteR
     const [loading,setLoading] = useState(true);
     const [myRecipes, setMyRecipes] = useState([]);
     const [othersRecipes, setOthersRecipes] = useState([]);
+    const [searchTerm, setSearchTerm] = useState("");
+    const [searchLoading,setSearchLoading] = useState(false);
 
     useEffect(()=>{
         async function getItems(){
-            let recipes = await getRecipes();
-            let selfUuId = user.userUuId
+            let recipes = await getRecipes(user.token);
+            let selfUuId = user.userUuId;
             if (recipes.error) return;
-            let myRecipes = recipes.filter((item)=>item["User.userUuId"]==selfUuId);
-            let othersRecipes = recipes.filter((item)=>item["User.userUuId"]!=selfUuId);
+            let myRecipes = recipes.filter((item)=>item["userUuId"]==selfUuId);
+            let othersRecipes = recipes.filter((item)=>item["userUuId"]!=selfUuId);
             setMyRecipes(myRecipes);
             setOthersRecipes(othersRecipes);
             setLoading(false);
+            setSearchLoading(false);
         }
         if (loading) {
             getItems();
         }
-    },[loading])
+    },[loading]);
+
+    useEffect(()=>{
+        async function getSearchedItems(){
+            let recipes = await getRecipes(user.token,searchTerm);
+            let selfUuId = user.userUuId;
+        }
+        
+    },[searchTerm]);
 
     const deleteAndUpdate = (uuid) => {
         async function doDelete() {
@@ -64,7 +75,7 @@ function Dashboard({getRecipes, getRecipe, researchRecipe, createRecipe, deleteR
 
     return (
         <div className="p-5">
-            <Search/>
+            <Search updateSearchTerm = {setSearchTerm} />
             <div className="row">
                 <CompactRecipeList myRecipes = {myRecipes} deleteRecipe = {deleteAndUpdate}/>
                 <BroadRecipeList othersRecipes = {othersRecipes}/>

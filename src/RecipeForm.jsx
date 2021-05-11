@@ -1,12 +1,16 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useParams, useHistory, Redirect } from "react-router-dom";
 import IngredientsList from "./IngredientList";
 import ListOfBadges from "./ListOfBadges";
 import ListOfSteps from "./ListofSteps";
-import Register from "./Register";
+import UserContext from "./userContext";
 
 function RecipeForm({lookupAutoCompletes, completeForm, getRecipe}) {
+    const user = useContext(UserContext);
     const history = useHistory();
+    const {id} = useParams();
+    const [loading, setLoading] = useState(true);
+    const [thisRecipe, setThisRecipe] = useState({});
     const measurementTypes = ['teaspoon', 'teaspoons', 'tablespoon', 'tablespoons', 'cup', 'cups', 'quart', 'quarts', 'gallon', 'gallons', 'lb', 'oz', 'pinch', 'whole', 'can'];
     const blankForm = {
         recipeName: "",
@@ -33,6 +37,37 @@ function RecipeForm({lookupAutoCompletes, completeForm, getRecipe}) {
         additionalInfo: "",
     }
 
+    useEffect(()=>{
+        async function getThisRecipe(){
+            let recipe = await getRecipe(id,user.token);
+            setThisRecipe(recipe);
+            blankForm.recipeName = recipe.recipeName || "";
+            blankForm.mealCategory = recipe.mealCategory || [];
+            blankForm.dietCategory = recipe.dietCategory || [];
+            blankForm.servingCount = recipe.servingCount || "";
+            blankForm.websiteReference = recipe.websiteReference || "";
+            blankForm.farenheitTemp = recipe.farenheitTemp || "";
+            blankForm.minuteTimeBake = recipe.minuteTimeBake || "";
+            blankForm.minuteTotalTime = recipe.minuteTotalTime || "";
+            blankForm.minutePrepTime = recipe.minutePrepTime || "";
+            blankForm.minuteCookTime = recipe.minuteCookTime || "";
+            blankForm.instructions = recipe.instructions || [];
+            blankForm.ingredients = recipe.Ingredients.map((ing)=>{return {
+                label: ing.label,
+                measurement: ing.measurement,
+                quantity: ing.quantity,
+                prepInstructions: ing.prepInstructions,
+                additionalInfo: ing.additionalInfo
+            }}) || [];
+            blankForm.toolsNeeded = recipe.toolsNeeded || "";
+            blankForm.photoUrl = recipe.photoUrl || "";
+            debugger;
+            setLoading(false);
+        }
+        if (loading && id!=undefined) {
+            getThisRecipe();
+        }
+    },[loading]);
     
     const [formData,setFormData] = useState(blankForm);
     const [ingredientForm, setIngredientForm] = useState(blankIngForm);
@@ -178,6 +213,7 @@ function RecipeForm({lookupAutoCompletes, completeForm, getRecipe}) {
     }
 
     function printErrors(){
+        debugger;
         if (errors.error && errors.length!=0){
             return(
                 <div className="alert alert-danger" role="alert">
@@ -207,6 +243,16 @@ function RecipeForm({lookupAutoCompletes, completeForm, getRecipe}) {
         } else {
             await setErrors(success);
         }
+    }
+
+    if (loading) {
+        return (
+            <>
+                <p>
+                    Loading
+                </p>
+            </>
+        )
     }
 
     return (

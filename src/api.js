@@ -101,6 +101,15 @@ class NeighborhoodRecipeApi {
         }
     }
 
+    async lookUpUserWithEmail(email) {
+        try {
+            let res = await this.request(`users/emailSearch`, { email: email }, 'post');
+            return res
+        } catch (e) {
+            return { error: e }
+        }
+    }
+
     async connectWithUser(uuid) {
         try {
             let res = await this.request(`users/connect/${uuid}`, {}, "post");
@@ -131,9 +140,20 @@ class NeighborhoodRecipeApi {
         }
     }
 
-    async getRecipes() {
+    async getRecipes(token = null, search = "") {
         try {
-            let res = await this.request(`recipes/view`);
+            let res;
+            let searchQuery
+            if (search != "") {
+                searchQuery = `?search=${search}`
+            } else {
+                searchQuery = ""
+            }
+            if (token) {
+                res = await this.request(`recipes/view${searchQuery}`, {}, "get", token);
+            } else {
+                res = await this.request(`recipes/view${searchQuery}`);
+            }
             return res.recipes;
         } catch (e) {
             return { error: e };

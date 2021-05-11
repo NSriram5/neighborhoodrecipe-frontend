@@ -1,7 +1,7 @@
 import React,{useState} from "react";
 import { useParams, useHistory, Redirect } from "react-router-dom";
 
-function Search() {
+function Search({updateSearchTerm}) {
     const history = useHistory();
 
     const blankForm = {
