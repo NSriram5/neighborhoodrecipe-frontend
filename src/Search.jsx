@@ -1,9 +1,8 @@
 import React,{useState} from "react";
 import { useParams, useHistory, Redirect } from "react-router-dom";
 
-function Search({updateSearchTerm}) {
+function Search({setSearchTerm}) {
     const history = useHistory();
-
     const blankForm = {
         input:""
     }
@@ -17,9 +16,15 @@ function Search({updateSearchTerm}) {
         }));
     }
 
+    const handleClick = evt => {
+        evt.preventDefault();
+        setSearchTerm(formData.input)
+    }
+
     return(
         <div className="w-75 m-auto pb-3">
             <input name="search" className="w-100 m-auto" value={formData["input"]} onChange={handleChange} autoComplete="search" placeholder="Search" />
+            <button className="btn btn-success" onClick={handleClick}>Search</button>
         </div>
     )
 }

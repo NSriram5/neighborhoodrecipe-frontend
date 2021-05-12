@@ -32,11 +32,11 @@ function Dashboard({getRecipes, getRecipe, researchRecipe, createRecipe, deleteR
     },[loading]);
 
     useEffect(()=>{
-        async function getSearchedItems(){
-            let recipes = await getRecipes(user.token,searchTerm);
-            let selfUuId = user.userUuId;
-        }
-        
+        // async function getSearchedItems(){
+        //     let recipes = await getRecipes(user.token,searchTerm);
+        //     let selfUuId = user.userUuId;
+        // }
+        setLoading(true);
     },[searchTerm]);
 
     const deleteAndUpdate = (uuid) => {
@@ -75,7 +75,7 @@ function Dashboard({getRecipes, getRecipe, researchRecipe, createRecipe, deleteR
 
     return (
         <div className="p-5">
-            <Search updateSearchTerm = {setSearchTerm} />
+            <Search setSearchTerm = {setSearchTerm} />
             <div className="row">
                 <CompactRecipeList myRecipes = {myRecipes} deleteRecipe = {deleteAndUpdate}/>
                 <BroadRecipeList othersRecipes = {othersRecipes}/>
